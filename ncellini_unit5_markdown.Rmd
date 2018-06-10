@@ -1,0 +1,138 @@
+---
+title: "Unit 5 Homework"
+author: "Nicholas R. Cellini"
+date: "June 9, 2018"
+output: html_document
+---
+##Question 1
+#####1a.
+```{r}
+#import text file using readr
+#and view data
+
+library(readr)
+yob2016 <- read_delim("C:/Users/nick.cellini/Dropbox/Doing Data Science/Class Files/yob2016 (1).txt", 
+    "\t", escape_double = FALSE, col_types = cols(Sex = col_character()), 
+     trim_ws = TRUE)
+
+#create data frame from text file
+#view data frame head
+
+df <-data.frame(yob2016)
+head(df)
+```
+
+#####1b.
+```{r}
+#structure of df
+str(df)
+
+#summary of df
+summary(df)
+```
+
+#####1c.
+```{r}
+#find which value contains 'yyy'
+grep("yyy",df$Name,value=TRUE)
+
+#return row number which contains the bad value (since we're told it's a duplicate)
+which(df$Name == grep("yyy",df$Name,value=TRUE))
+
+```
+
+#####1d.
+```{r}
+#eliminate the bad line and save as 'y2016'
+y2016 <- df[- (212),]
+```
+
+
+
+##Question 2
+
+#####2a.
+```{r}
+#import text file using readr
+#and view data
+
+yob2015 <- read_csv("yob2015 (1).txt", col_names = FALSE, 
+    col_types = cols(X2 = col_character()), 
+    trim_ws = FALSE)
+
+#Assign names to the columns
+colnames(yob2015) <- c("Name","Sex","Count")
+
+#create data frame from text file
+#view data frame
+
+y2015 <-data.frame(yob2015)
+head(y2015)
+```
+
+#####2b.
+```{r}
+#display last ten rows
+tail(y2015,10)
+
+```
+
+#######Interesting the fact that :
+1) all are 'Z' 
+2) I've never heard of any of these names 
+3) They are all a count of 5
+
+
+#####2c.
+```{r}
+#Merge the two objects by 'Name' ,create object 'final'
+final <- merge(y2016,y2015,by="Name",all=FALSE)
+
+#Name the columns for more clarity
+colnames(final) <- c("Name","Sex (2016)","Count (2016)","Sex (2015)","Count (2015)")
+```
+
+
+##Question 3
+
+#####3a.
+```{r}
+# sum the columns of Count (2015) and Count (2016)
+Total <- final$`Count (2016)` + final$`Count (2015)`
+
+#Total number of names given
+sum(final$Total)
+
+#add the 'Total' column to the existing data frame final
+final <- cbind(final,Total)
+```
+
+#####3b.
+```{r}
+#create a list of most popular names 
+most_popular <- final[order(-final$Total),]
+
+#find the top 10 names and view
+top_10 <- most_popular[1:10,]
+top_10
+```
+
+#####3c.
+```{r}
+#create a female only subset of the data
+final_f <- subset.data.frame(final,final$`Sex (2016)` %in% "F" & final$`Sex (2015)` %in% "F")
+
+#subset, order and display female only data
+top_10_f <- final_f[order(-final_f$Total),]
+top_10_f[1:10,]
+```
+
+#####3d.
+```{r}
+#write top 10 girl names to a file with only name and total
+write.csv(top_10_f[1:10,c(1,6)],"Top 10 Female Names 2015 & 2016",row.names = FALSE)
+```
+
+##Question 4
+
+https://github.com/nickcellini/DDS-6306-Homework-Repo/tree/Homework-Unit-5
